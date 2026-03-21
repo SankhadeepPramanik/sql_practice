@@ -1,0 +1,207 @@
+🧭 SQL Date Functions — Polished Cheat Sheet
+1️⃣ Adding Days to a Date
+| Platform               | Syntax                                | Example                                  |
+| ---------------------- | ------------------------------------- | ---------------------------------------- |
+| Databricks (Spark SQL) | `date_add(date, days)`                | `date_add('2020-01-01', 5)`              |
+| Snowflake              | `dateadd(unit, value, date)`          | `dateadd(day, 5, '2020-01-01')`          |
+| Redshift               | `dateadd(unit, value, date)`          | `dateadd(day, 5, '2020-01-01')`          |
+| BigQuery               | `DATE_ADD(date, INTERVAL value unit)` | `DATE_ADD('2020-01-01', INTERVAL 5 DAY)` |
+
+2️⃣ Subtracting Days
+| Platform   | Syntax                                | Example                                  |
+| ---------- | ------------------------------------- | ---------------------------------------- |
+| Databricks | `date_sub(date, days)`                | `date_sub('2020-01-01', 5)`              |
+| Snowflake  | `dateadd(day, -5, date)`              | `dateadd(day, -5, '2020-01-01')`         |
+| Redshift   | `dateadd(day, -5, date)`              | same                                     |
+| BigQuery   | `DATE_SUB(date, INTERVAL value unit)` | `DATE_SUB('2020-01-01', INTERVAL 5 DAY)` |
+  
+Snowflake/Redshift don’t have date_sub() → use negative value
+
+3️⃣ Difference Between Dates
+
+| Platform   | Syntax                        | Example                                     |
+| ---------- | ----------------------------- | ------------------------------------------- |
+| Databricks | `datediff(end, start)`        | `datediff('2020-01-10','2020-01-01')`       |
+| Snowflake  | `datediff(unit, start, end)`  | `datediff(day,'2020-01-01','2020-01-10')`   |
+| Redshift   | same as Snowflake             | same                                        |
+| BigQuery   | `DATE_DIFF(end, start, unit)` | `DATE_DIFF('2020-01-10','2020-01-01', DAY)` |
+
+⚠️ Critical difference
+
+Databricks order = (end, start)
+Others = include unit and follow (start, end) or (end, start, unit)
+
+4️⃣ Current Date
+| Platform   | Syntax           |
+| ---------- | ---------------- |
+| Databricks | `current_date()` |
+| Snowflake  | `current_date()` |
+| Redshift   | `current_date`   |
+| BigQuery   | `CURRENT_DATE()` |
+
+
+5️⃣ Extract Date Parts
+| Platform   | Syntax                               |
+| ---------- | ------------------------------------ |
+| Databricks | `year(date), month(date), day(date)` |
+| Snowflake  | `extract(year from date)`            |
+| Redshift   | same                                 |
+| BigQuery   | `EXTRACT(YEAR FROM date)`            |
+
+Tip:
+
+BigQuery & Snowflake → ANSI style (EXTRACT)
+Spark → function style (year())
+
+6️⃣ Truncate Date
+| Platform   | Syntax                   | Example                     |
+| ---------- | ------------------------ | --------------------------- |
+| Databricks | `date_trunc(unit, date)` | `date_trunc('month', date)` |
+| Snowflake  | same                     | same                        |
+| Redshift   | same                     | same                        |
+| BigQuery   | `DATE_TRUNC(date, unit)` | `DATE_TRUNC(date, MONTH)`   |
+
+  ⚠️ Order difference
+
+BigQuery flips arguments → (date, unit)
+
+
+  🧭 1️⃣ Current Date & Time Functions
+| Function          | Databricks            | Snowflake             | Redshift                          | BigQuery              | Notes                          |
+| ----------------- | --------------------- | --------------------- | --------------------------------- | --------------------- | ------------------------------ |
+| Current Date      | `current_date()`      | `current_date()`      | `current_date`                    | `CURRENT_DATE()`      | Returns current date           |
+| Current Timestamp | `current_timestamp()` | `current_timestamp()` | `current_timestamp`               | `CURRENT_TIMESTAMP()` | Returns timestamp              |
+| Now               | `now()`               | `current_timestamp()` | `getdate()` / `current_timestamp` | `CURRENT_TIMESTAMP()` | Synonyms for current timestamp |
+
+  🧭 2️⃣ Extracting Date Parts
+
+| Component   | Databricks                | Snowflake                        | Redshift                   | BigQuery                               |
+| ----------- | ------------------------- | -------------------------------- | -------------------------- | -------------------------------------- |
+| Year        | `year(date)`              | `extract(year from date)`        | `extract(year from date)`  | `EXTRACT(YEAR FROM date)`              |
+| Month       | `month(date)`             | `extract(month from date)`       | `extract(month from date)` | `EXTRACT(MONTH FROM date)`             |
+| Day         | `day(date)`               | `extract(day from date)`         | `extract(day from date)`   | `EXTRACT(DAY FROM date)`               |
+| Week        | `weekofyear(date)`        | `extract(week from date)`        | `extract(week from date)`  | `EXTRACT(WEEK FROM date)`              |
+| Day of Week | `dayofweek(date)` (1=Sun) | `extract(dow from date)` (0=Sun) | `extract(dow from date)`   | `EXTRACT(DAYOFWEEK FROM date)` (1=Sun) |
+
+🧭 3️⃣ Date Arithmetic
+| Operation     | Databricks               | Snowflake                 | Redshift                  | BigQuery                           | Notes                   |
+| ------------- | ------------------------ | ------------------------- | ------------------------- | ---------------------------------- | ----------------------- |
+| Add days      | `date_add(date, n)`      | `dateadd(day, n, date)`   | `dateadd(day, n, date)`   | `DATE_ADD(date, INTERVAL n DAY)`   | Adds days               |
+| Subtract days | `date_sub(date, n)`      | `dateadd(day, -n, date)`  | `dateadd(day, -n, date)`  | `DATE_SUB(date, INTERVAL n DAY)`   | Subtracts days          |
+| Add months    | `add_months(date, n)`    | `dateadd(month, n, date)` | `dateadd(month, n, date)` | `DATE_ADD(date, INTERVAL n MONTH)` | Adds months             |
+| Add years     | `add_months(date, n*12)` | `dateadd(year, n, date)`  | `dateadd(year, n, date)`  | `DATE_ADD(date, INTERVAL n YEAR)`  | Spark uses `add_months` |
+
+
+🧭 4️⃣ Difference Between Dates
+
+| Function       | Databricks                   | Snowflake                     | Redshift                      | BigQuery                       |
+| -------------- | ---------------------------- | ----------------------------- | ----------------------------- | ------------------------------ |
+| Days between   | `datediff(end, start)`       | `datediff(day, start, end)`   | `datediff(day, start, end)`   | `DATE_DIFF(end, start, DAY)`   |
+| Months between | `months_between(end, start)` | `datediff(month, start, end)` | `datediff(month, start, end)` | `DATE_DIFF(end, start, MONTH)` |
+
+
+  🧭 5️⃣ Truncating / Rounding Dates
+
+| Function         | Databricks                                      | Snowflake                  | Redshift                   | BigQuery                 |
+| ---------------- | ----------------------------------------------- | -------------------------- | -------------------------- | ------------------------ |
+| Truncate to unit | `date_trunc('unit', date)`                      | `date_trunc('unit', date)` | `date_trunc('unit', date)` | `DATE_TRUNC(date, unit)` |
+| Example          | `date_trunc('month','2020-03-15') → 2020-03-01` | same                       | same                       | same                     |
+
+🧭 6️⃣ Parsing / Formatting Dates
+
+| Function      | Databricks                           | Snowflake                            | Redshift             | BigQuery                              |
+| ------------- | ------------------------------------ | ------------------------------------ | -------------------- | ------------------------------------- |
+| String → Date | `to_date(str, fmt)`                  | `to_date(str, fmt)`                  | `to_date(str, fmt)`  | `PARSE_DATE(fmt, str)`                |
+| Date → String | `date_format(date, fmt)`             | `to_char(date, fmt)`                 | `to_char(date, fmt)` | `FORMAT_DATE(fmt, date)`              |
+| Example       | `to_date('2020-01-01','yyyy-MM-dd')` | `to_date('2020-01-01','YYYY-MM-DD')` | same                 | `PARSE_DATE('%Y-%m-%d','2020-01-01')` |
+
+
+🧭 7️⃣ Miscellaneous / Useful Functions
+
+| Function          | Databricks              | Snowflake        | Redshift                                                 | BigQuery                  | Notes                                 |
+| ----------------- | ----------------------- | ---------------- | -------------------------------------------------------- | ------------------------- | ------------------------------------- |
+| Last day of month | `last_day(date)`        | `last_day(date)` | `date_trunc('month', date) + interval '1 month - 1 day'` | `LAST_DAY(date)`          |                                       |
+| Next day          | `next_day(date, 'Mon')` | same             | same                                                     | ❌ Not native              | Use logic with `DATE_ADD` + `EXTRACT` |
+| Week of year      | `weekofyear(date)`      | `week(date)`     | `extract(week from date)`                                | `EXTRACT(WEEK FROM date)` |                                       |
+
+✅ SQL Date + INTERVAL — Correct Way
+
+| Platform                   | Correct Syntax                            | Example                                            | Key Notes                              |
+| -------------------------- | ----------------------------------------- | -------------------------------------------------- | -------------------------------------- |
+| **Databricks / Spark SQL** | `date_add(date, n)` / `date_sub(date, n)` | `date_add('2020-01-01', 5)` → `2020-01-06`         | ✅ Best practice for DATE               |
+|                            | `timestamp + INTERVAL n unit`             | `timestamp '2020-01-01 00:00:00' + INTERVAL 1 DAY` | ✅ INTERVAL works mainly with TIMESTAMP |
+| **Snowflake**              | `dateadd(unit, n, date)`                  | `dateadd(day, 1, '2020-01-01')`                    | ✅ Most common approach                 |
+|                            | `date + INTERVAL 'n unit'`                | `'2020-01-01' + INTERVAL '1 DAY'`                  | ✅ Also valid                           |
+| **Redshift**               | `dateadd(unit, n, date)`                  | `dateadd(day, 1, '2020-01-01')`                    | ✅ Preferred method                     |
+|                            | `date + INTERVAL 'n unit'`                | `'2020-01-01' + INTERVAL '1 day'`                  | ⚠️ Less commonly used                  |
+| **BigQuery**               | `DATE_ADD(date, INTERVAL n unit)`         | `DATE_ADD('2020-01-01', INTERVAL 1 DAY)`           | ✅ Required syntax                      |
+|                            | `TIMESTAMP_ADD(ts, INTERVAL n unit)`      | `TIMESTAMP_ADD(ts, INTERVAL 1 DAY)`                | ✅ For timestamps                       |
+
+
+  ⚠️ Important Corrections (What Changed)
+1. Spark / Databricks
+❌ Saying “no INTERVAL support” → incorrect
+✅ Correct:
+Supports INTERVAL for timestamp arithmetic
+But for dates, use date_add/date_sub (preferred)
+2. Snowflake & Redshift
+Both:
+✅ Support dateadd() (most used)
+✅ Support INTERVAL
+⚠️ But:
+dateadd() is industry standard in these systems
+3. BigQuery
+
+❌ Cannot do:
+
+'2020-01-01' + INTERVAL 1 DAY
+
+✅ Must use:
+
+DATE_ADD(date, INTERVAL n DAY)
+🧪 Correct Spark INTERVAL Examples
+-- Add 1 day
+SELECT timestamp '2020-01-01 00:00:00' + INTERVAL 1 DAY;
+
+-- Subtract hours
+SELECT timestamp '2020-01-01 00:00:00' - INTERVAL 2 HOURS;
+
+-- Add months
+SELECT timestamp '2020-01-01 00:00:00' + INTERVAL 1 MONTH;
+
+
+  Real Example:
+
+🚀 Bonus: Real-World Patterns
+📌 Last 7 Days Filter
+-- Databricks
+where date_col >= date_sub(current_date(), 7)
+
+-- Snowflake / Redshift
+where date_col >= dateadd(day, -7, current_date())
+
+-- BigQuery
+where date_col >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
+📌 First Day of Month
+-- All except BigQuery
+date_trunc('month', date_col)
+
+-- BigQuery
+DATE_TRUNC(date_col, MONTH)
+📌 Days Between Today and Date
+-- Databricks
+datediff(current_date(), date_col)
+
+-- Snowflake / Redshift
+datediff(day, date_col, current_date())
+
+-- BigQuery
+DATE_DIFF(CURRENT_DATE(), date_col, DAY)
+
+
+
+
+
+
+
+
